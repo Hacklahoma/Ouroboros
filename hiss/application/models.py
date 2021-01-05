@@ -383,7 +383,7 @@ class Application(models.Model):
         null=True, 
         verbose_name="email address", 
         help_text="Please enter your school address ending in .edu to be considered. Contact us at team@hacklahoma.org for any exceptions.",
-        validators=[RegexValidator(regex="^([A-Za-z0-9_\.-]+\@([\da-z\.-]+\.(edu|ie|edu\.in|ac\.in)|ontariotechu\.net)|unam\.mx)|shizhe\.he6\@gmail\.com)$", message="Enter a valid email address ending in .edu")]
+        validators=[RegexValidator(regex="^([A-Za-z0-9_\.-]+\@([\da-z\.-]+\.(edu|ie|edu\.in|ac\.in|unam\.mx)|ontariotechu\.net)|shizhe\.he6\@gmail\.com)$", message="Enter a valid email address ending in .edu")]
     )
 
     # Phone Character Field
