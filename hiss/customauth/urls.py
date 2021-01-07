@@ -7,11 +7,11 @@ urlpatterns = [
     path("signup/", views.SignupView.as_view(), name="signup"),
     path(
         "login/",
-        auth_views.LoginView.as_view(authentication_form=forms.LoginForm),
+        auth_views.LoginView.as_view(),
         name="login",
     ),
     path(
-        "discord/<str:discord_id>/",
+        "discord/",
         views.DiscordAuthView.as_view(),
         name="discord_auth",
     ),

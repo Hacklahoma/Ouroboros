@@ -40,7 +40,7 @@
                             <a href="{% url 'customauth:resend_activation' %}" class="forgot-pswd">Can't Log In?</a>
                         </div>
 
-
+                        <input id="login_redirect" type="hidden" name="next" value="/accounts/login" />
                         <input type="submit" class="btn btn-lg btn-block btn-login" value="Log In"/>
                     </div>
                     {% csrf_token %}

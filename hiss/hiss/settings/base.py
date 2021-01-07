@@ -108,7 +108,7 @@ MAX_UPLOAD_SIZE = "10485760"
 # See https://docs.djangoproject.com/en/1.11/ref/settings/#data-upload-max-number-fields. Important for exporting
 # emails.
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10240
-LOGIN_REDIRECT_URL = reverse_lazy("status")
+# LOGIN_REDIRECT_URL = reverse_lazy("status")
 LOGOUT_REDIRECT_URL = reverse_lazy("customauth:login")
 
 # Static files (CSS, JavaScript, Images)

@@ -1,6 +1,6 @@
 from django import views
 from django.conf import settings
-from django.contrib.auth import get_user_model, login
+from django.contrib.auth import get_user_model, login, authenticate
 from django.contrib.auth import views as auth_views
 from django.contrib.sites import shortcuts as site_shortcuts
 from django.contrib.sites.requests import RequestSite
@@ -29,7 +29,16 @@ def send_confirmation_email(curr_domain: RequestSite, user: User) -> None:
     user.send_html_email(template_name, context, subject)
 
 
-# Create your views here.
+class RegistrationLoginView(auth_views.LoginView):
+    """
+    Discord Authentication portion of registration
+    """
+
+    template_name = "registration/login.html"
+    form_class = customauth_forms.LoginForm
+    success_url = reverse_lazy("status")
+
+
 class SignupView(generic.FormView):
     form_class = customauth_forms.SignupForm
     template_name = "registration/signup.html"
@@ -108,5 +117,15 @@ class DiscordAuthView(auth_views.LoginView):
     template_name = "registration/discord_auth.html"
     form_class = customauth_forms.DiscordAuthForm
     
-
-    
+    def get(self, request, *_args, **kwargs):
+        id = None
+        try:
+            id = request.GET.get('id', '')
+        except (
+            TypeError,
+            ValueError,
+            OverflowError,
+            get_user_model().DoesNotExist,
+        ) as e:
+            print(e)
+        return HttpResponse(id)
