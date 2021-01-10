@@ -15,6 +15,7 @@ urlpatterns = [
         views.DiscordAuthView.as_view(),
         name="discord_auth",
     ),
+    path("check_id/", views.CheckDiscordId.as_view(), name="check_id"),
     path(
         "resend_activation/",
         views.ResendActivationEmailView.as_view(),

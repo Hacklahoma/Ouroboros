@@ -9,10 +9,13 @@
 
                 <header class="text-center">
                     <img class="header-logo" src="{% static 'hacklahoma.svg' %}">
-                    <h1>{{ event_name }} 2021 Application</h1>
+                    <h1>{{ event_name }} 2021</h1>
+                    <div class="col-sm-12 col-lg-12 text-center">
+                        Please log in using the email you registered for Hacklahoma with. This will link your Discord account to your application!
+                    </div>
                 </header>
-
-                <form id="login-form" method="POST" action="{% url 'customauth:login' %}">
+                
+                <form id="login-form" method="POST" action="{% url 'customauth:discord_auth' %}">
                     {% csrf_token %}
                     <!-- security -->
                     <div class="form-row">
@@ -33,24 +36,28 @@
 
                         {% endfor %}
 
-                        <div class="forgot-pswd-wrapper">
+                        <!--<div class="forgot-pswd-wrapper">
                             <a href="{% url 'customauth:password_reset' %}" class="forgot-pswd">Forgot Password?</a>
                         </div>
                         <div class="forgot-pswd-wrapper">
                             <a href="{% url 'customauth:resend_activation' %}" class="forgot-pswd">Can't Log In?</a>
-                        </div>
-
-                        <input id="login_redirect" type="hidden" name="next" value="/accounts/login" />
+                        </div>!-->
+                        <input id="login_redirect" type="hidden" name="next" value="{% url 'customauth:login' %}" />
+                        <script>
+                            const discord_id = new URLSearchParams(window.location.search).get('id');
+                            document.getElementById("login_redirect").value = `/accounts/check_id/?id=${discord_id}`;
+                        </script>
+                        
                         <input type="submit" class="btn btn-lg btn-block btn-login" value="Log In"/>
                     </div>
                     {% csrf_token %}
                 </form>
 
-                <div class="row login-alt-options pt-4">
+                <!--<div class="row login-alt-options pt-4">
                     <div class="col-sm-12 col-lg-12 text-center">
-                        Don't have an account? <a href="{% url 'customauth:signup' %}">Sign up</a>
+                        Haven't filled out an application yet? We may be taking applications still! <a href="{% url 'customauth:signup' %}">Sign up</a>
                     </div>
-                </div>
+                </div>!-->
             </div>
         </div>
         <div class="social-media-container ">
