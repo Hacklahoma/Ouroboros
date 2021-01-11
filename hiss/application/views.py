@@ -2,11 +2,12 @@ from django import views
 from django.contrib.auth import mixins
 from django.core.exceptions import PermissionDenied
 from django.db.models import QuerySet
-from django.http import HttpRequest
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views import generic
 
+from user.models import User
 from application.emails import send_confirmation_email, send_creation_email
 from application.forms import ApplicationModelForm
 from application.models import (
@@ -120,3 +121,40 @@ class DeclineApplicationView(mixins.LoginRequiredMixin, views.View):
         app.status = STATUS_DECLINED
         app.save()
         return redirect(reverse_lazy("status"))
+
+class CheckDiscordId(mixins.LoginRequiredMixin, views.View):
+    """
+    Checks to see if a discord id has been used already or if the current user 
+    already has a discord id linked to it.
+    """
+
+    queryset = Application.objects.all()
+
+    def get(self, request, *_args, **kwargs):
+        app = None
+        user = None
+        discord_id = None
+        try:
+            user: User = User.objects.get(email=self.request.user)
+            print(user)
+            #app: Application = Application.objects.get(pk=pk)
+            discord_id = kwargs["discord_id"]
+        except (
+            TypeError,
+            ValueError,
+            OverflowError,
+        #get_user_model().DoesNotExist,
+        ) as e:
+            print(e)
+        if app is not None:
+            print(app.discord_id)
+           # if Application.objects.get(discord_id=discord_id is not None):
+            #    return HttpResponse("Discord id already being using. Please contact a Hacklahoma team member through the Hacklahoma Discord or through team@hacklahoma.org.")
+            #elif app.discord_id:
+            #    return HttpResponse("Application already has a discord id linked to it. Please contact a Hacklahoma team member through the Hacklahoma Discord or through team@hacklahoma.org.")
+            #elif app.status == STATUS_DECLINED:
+            #    return HttpResponse("Application was declined. Please contact a Hacklahoma team member through the Hacklahoma Discord or through team@hacklahoma.org.")
+            #else:
+            #    return HttpResponse(f"This is where we enter the matrix or something.\ndiscord_id: {discord_id}\napp: {app}")
+        else:
+            return HttpResponse(f"{user}")

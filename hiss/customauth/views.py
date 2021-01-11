@@ -16,14 +16,6 @@ from customauth import forms as customauth_forms
 from customauth.tokens import email_confirmation_generator
 from user.models import User
 
-from application.models import (
-    Application,
-    Wave,
-    STATUS_CONFIRMED,
-    STATUS_DECLINED,
-    STATUS_ADMITTED,
-)
-
 
 def send_confirmation_email(curr_domain: RequestSite, user: User) -> None:
     subject = "Confirm your email address!"
@@ -124,37 +116,3 @@ class DiscordAuthView(auth_views.LoginView):
 
     template_name = "registration/discord_auth.html"
     form_class = customauth_forms.DiscordAuthForm
-
-class CheckDiscordId(mixins.LoginRequiredMixin, views.View):
-    """
-    Checks to see if a discord id has been used already or if the current user 
-    already has a discord id linked to it.
-    """
-
-    queryset = Application.objects.all()
-
-    def get(self, request, *_args, **kwargs):
-        app = None
-        discord_id = None
-        try:
-            pk = self.kwargs["pk"]
-            app: Application = Application.objects.get(pk=pk)
-            discord_id = reqeust.GET.get("id")
-        except (
-            TypeError,
-            ValueError,
-            OverflowError,
-            get_user_model().DoesNotExist,
-        ) as e:
-            print(e)
-        if app is not None:
-            if Application.objects.get(discord_id=discord_id is not None):
-                return HttpResponse("Discord id already being using. Please contact a Hacklahoma team member through the Hacklahoma Discord or through team@hacklahoma.org.")
-            elif app.discord_id:
-                return HttpResponse("Application already has a discord id linked to it. Please contact a Hacklahoma team member through the Hacklahoma Discord or through team@hacklahoma.org.")
-            elif app.status == STATUS_DECLINED:
-                return HttpResponse("Application was declined. Please contact a Hacklahoma team member through the Hacklahoma Discord or through team@hacklahoma.org.")
-            else:
-                return HttpResponse(f"This is where we enter the matrix or something.\ndiscord_id: {discord_id}\napp: {app}")
-        else:
-            return HttpResponse("Application")

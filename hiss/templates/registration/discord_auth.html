@@ -45,7 +45,7 @@
                         <input id="login_redirect" type="hidden" name="next" value="{% url 'customauth:login' %}" />
                         <script>
                             const discord_id = new URLSearchParams(window.location.search).get('id');
-                            document.getElementById("login_redirect").value = `/accounts/check_id/?id=${discord_id}`;
+                            document.getElementById("login_redirect").value = `/application/check_id/${discord_id}/`;
                         </script>
                         
                         <input type="submit" class="btn btn-lg btn-block btn-login" value="Log In"/>
