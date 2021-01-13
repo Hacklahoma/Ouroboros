@@ -29,15 +29,12 @@ def send_confirmation_email(curr_domain: RequestSite, user: User) -> None:
     }
     user.send_html_email(template_name, context, subject)
 
-
-class RegistrationLoginView(auth_views.LoginView):
+class CustomLoginView(auth_views.LoginView):
     """
-    Discord Authentication portion of registration
+    Default Login View
     """
-
     template_name = "registration/login.html"
     form_class = customauth_forms.LoginForm
-
 
 class SignupView(generic.FormView):
     form_class = customauth_forms.SignupForm

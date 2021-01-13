@@ -20,6 +20,10 @@ class SignupForm(auth_forms.UserCreationForm):
         label="",
     )
 
+    def clean_email(self):
+        data = self.cleaned_data['email']
+        return data.lower()
+
     class Meta:
         model = get_user_model()
         fields = ("email", "password1", "password2")
@@ -38,6 +42,10 @@ class LoginForm(auth_forms.AuthenticationForm):
         widget=widgets.PasswordInput(attrs={"placeholder": "Password"}), label=""
     )
 
+    def clean_username(self):
+        data = self.cleaned_data['username']
+        return data.lower()
+    
     class Meta:
         fields = ["username", "password"]
 
@@ -97,6 +105,10 @@ class DiscordAuthForm(auth_forms.AuthenticationForm):
     password = forms.CharField(
         widget=widgets.PasswordInput(attrs={"placeholder": "Password"}), label=""
     )
+
+    def clean_username(self):
+        data = self.cleaned_data['username']
+        return data.lower()
 
     class Meta:
         fields = ["username", "password"]

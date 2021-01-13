@@ -1,9 +1,9 @@
 from django import forms
 from django.utils.safestring import mark_safe
+from django.forms import widgets
 
 from application import models as application_models, models
 from application.models import School
-
 
 class ApplicationModelForm(forms.ModelForm):
     race_other = forms.CharField(
@@ -178,4 +178,40 @@ class ApplicationModelForm(forms.ModelForm):
             "agree_to_coc",
             "photo_release",
             # "is_adult"
+        ]
+
+class DiscordRulesForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["liability_waiver"].label = mark_safe(
+            'I agree to the terms in the <a target="_blank" href="https://2021.hacklahoma.org/release_of_liability.pdf">Liability Waiver</a>.'
+        )
+
+        self.fields["agree_to_discord_rules"].label = mark_safe(
+            'I agree to the rules shown above.'
+        )
+
+        # Remove the colons
+        self.label_suffix=""
+
+        # Set the fields that are required to required
+        for field in self.Meta.required:
+            self.fields[field].required = True
+            self.fields[field].label = mark_safe(f"{self.fields[field].label}")
+
+    def is_valid(self) -> bool:
+        return super().is_valid()
+
+    class Meta:
+        model = application_models.Application
+        widgets = {
+            "agree_to_discord_rules": forms.CheckboxInput,
+        }
+
+        fields = [
+            "agree_to_discord_rules"
+        ]
+
+        required = [
+            "agree_to_discord_rules"
         ]

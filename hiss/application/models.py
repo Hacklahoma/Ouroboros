@@ -364,6 +364,7 @@ class Application(models.Model):
     )
     discord_id = models.CharField(max_length=32, null=True)
     checked_in = models.BooleanField(default=False)
+    agree_to_discord_rules = models.BooleanField("I agree to the rules shown above.", choices=AGREE, null=True)
 
     # ABOUT YOU
     # First Name Character Field
@@ -493,7 +494,7 @@ class Application(models.Model):
         help_text="Note: US residents only and must submit a project"
     )
 
-     # Mailing Adress Adress Form
+    # Mailing Adress Adress Form
     address1 = models.CharField(
         "Address line 1",
         max_length=1024,
@@ -605,3 +606,4 @@ class Application(models.Model):
             raise exceptions.ValidationError("Please format your phone number to contain no spaces, dashes, or parenthesis.")
         if not self.num_hackathons_attended.isnumeric():
             raise exceptions.ValidationError("Please enter a number for the number of hackathons.")
+
