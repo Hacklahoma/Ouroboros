@@ -9,5 +9,7 @@ urlpatterns = [
     path("<uuid:pk>/confirm", views.ConfirmApplicationView.as_view(), name="confirm"),
     path("<uuid:pk>/decline", views.DeclineApplicationView.as_view(), name="decline"),
     path("check_id/", views.CheckDiscordIdView.as_view(), name="check_id"),
-    path("discord_rules/", views.DiscordRulesView.as_view(), name="discord_rules")
+    path("check_id/<str:discord_id>/", views.CheckDiscordIdView.as_view(), name="check_id"),
+    path("discord_rules/<uuid:pk>/", views.DiscordRulesView.as_view(), name="discord_rules"),
+    path("discord_rules/<uuid:pk>/<str:discord_id>/", views.DiscordRulesView.as_view(), name="discord_rules"),
 ]

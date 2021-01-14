@@ -178,9 +178,9 @@ class ApplicationAdmin(admin.ModelAdmin):
     list_filter = (
         ("school", RelatedOnlyFieldListFilter),
         ("status", ChoiceDropdownFilter),
-        #("gender", ChoiceDropdownFilter),
-        #("num_hackathons_attended", ChoiceDropdownFilter),
-        #("datetime_submitted", DateRangeFilter),
+        ("gender", ChoiceDropdownFilter),
+        ("num_hackathons_attended", ChoiceDropdownFilter),
+        ("datetime_submitted", DateRangeFilter),
         #RaceFilter,
     )
     list_display = (
@@ -191,7 +191,8 @@ class ApplicationAdmin(admin.ModelAdmin):
         "datetime_submitted",
         "status",
         "discord_id",
-        "checked_in"
+        "checked_in",
+        "agree_to_discord_rules"
     )
     fieldsets = [
         ("Related Objects", {"fields": ["user"]}),

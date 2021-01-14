@@ -183,10 +183,6 @@ class ApplicationModelForm(forms.ModelForm):
 class DiscordRulesForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["liability_waiver"].label = mark_safe(
-            'I agree to the terms in the <a target="_blank" href="https://2021.hacklahoma.org/release_of_liability.pdf">Liability Waiver</a>.'
-        )
-
         self.fields["agree_to_discord_rules"].label = mark_safe(
             'I agree to the rules shown above.'
         )

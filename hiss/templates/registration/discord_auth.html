@@ -36,28 +36,15 @@
 
                         {% endfor %}
 
-                        <!--<div class="forgot-pswd-wrapper">
-                            <a href="{% url 'customauth:password_reset' %}" class="forgot-pswd">Forgot Password?</a>
-                        </div>
-                        <div class="forgot-pswd-wrapper">
-                            <a href="{% url 'customauth:resend_activation' %}" class="forgot-pswd">Can't Log In?</a>
-                        </div>!-->
-                        <input id="login_redirect" type="hidden" name="next" value="{% url 'customauth:login' %}" />
-                        <script>
-                            const discord_id = new URLSearchParams(window.location.search).get('id');
-                            document.getElementById("login_redirect").value = `/application/check_id/?id=${discord_id}/`;
-                        </script>
-                        
+                        {% if view.kwargs.discord_id %}
+                        <input id="login_redirect" type="hidden" name="next" value="{% url 'application:check_id' view.kwargs.discord_id %}" />
+                        {% else %}
+                        <input id="login_redirect" type="hidden" name="next" value="{% url 'application:check_id' %}" />
+                        {% endif %}
                         <input type="submit" class="btn btn-lg btn-block btn-login" value="Log In"/>
                     </div>
                     {% csrf_token %}
                 </form>
-
-                <!--<div class="row login-alt-options pt-4">
-                    <div class="col-sm-12 col-lg-12 text-center">
-                        Haven't filled out an application yet? We may be taking applications still! <a href="{% url 'customauth:signup' %}">Sign up</a>
-                    </div>
-                </div>!-->
             </div>
         </div>
         <div class="social-media-container ">

@@ -10,7 +10,7 @@
                     <img class="header-logo" src="{% static 'hacklahoma.svg' %}">
                     <h1>Discord Rules</h1>
                     <div class="col-sm-12 col-lg-12 text-center">
-                        UwU
+                        
                     </div>
                 </header>
 
@@ -22,11 +22,9 @@
                             <input id="redirect" type="hidden" name="next" value="{% url 'customauth:login' %}" />
                             <script>
                                 const discord_id = new URLSearchParams(window.location.search).get('id');
-                                document.getElementById("redirect").value = `{% url 'customauth:login' %}` + `?id=${discord_id}/`;
+                                document.getElementById("redirect").value = `{% url 'customauth:login' %}` + `?id=${discord_id}`;
                             </script>
-                            <button type="submit" class="btn btn-lg btn-block btn-login w-100">
-                                Submit
-                            </button>
+                            <input type="submit" class="btn btn-lg btn-block btn-tos" value="Submit" />
                         </div>
                     </div>
                     <br>

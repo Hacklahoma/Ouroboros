@@ -9,7 +9,7 @@ from django.views import generic
 
 from user.models import User
 from application.emails import send_confirmation_email, send_creation_email
-from application.forms import ApplicationModelForm
+from application.forms import (ApplicationModelForm, DiscordRulesForm)
 from application.models import (
     Application,
     Wave,
@@ -131,29 +131,58 @@ class CheckDiscordIdView(mixins.LoginRequiredMixin, views.View):
     queryset = Application.objects.all()
 
     def get(self, request, *_args, **kwargs):
+        if not Application.objects.filter(user_id=self.request.user.id):
+            return HttpResponse("Application is not finished.")
+
         app: Application = Application.objects.get(user_id=self.request.user.id)
-        discord_id = request.GET.get("id")
+        discord_id = kwargs.get('discord_id')
 
-        if discord_id is None:
-            return HttpResponse("No Discord id was specified. Please contact a Hacklahoma team member through the Hacklahoma Discord or through team@hacklahom.org.")
-        elif app is not None:
-            #return HttpResponse(f"app: {app.id}\ndiscord_id: {discord_id}")
-            if Application.objects.filter(discord_id=discord_id):
-                return HttpResponse("Discord account already linked. If you think this is an error please contact a Hacklahoma team member through the Hacklahoma Discord or through team@hacklahoma.org.")
-            elif app.discord_id:
-                return HttpResponse("Application already has a Discord account lin ked to it. If you think this is an error please contact a Hacklahoma team member through the Hacklahoma Discord or through team@hacklahoma.org.")
-            elif app.status == STATUS_DECLINED:
+        if app is not None:
+            # Check to see if the application was declined
+            if app.status == STATUS_DECLINED:
                 return HttpResponse("Application to Hacklahoma was declined. Please contact a Hacklahoma team member through the Hacklahoma Discord or through team@hacklahoma.org.")
+            # Check to see if the application returned already has a discord id
+            elif app.discord_id:
+                return HttpResponse("Application already has a Discord account linked to it. If you think this is an error please contact a Hacklahoma team member through the Hacklahoma Discord or through team@hacklahoma.org.")
+           
+            # Check to see if the discord id was provided
+            if discord_id is not None:
+                # Check to see if there is an application with the specified discord id
+                if Application.objects.filter(discord_id=discord_id):
+                    return HttpResponse("Discord account already linked. If you think this is an error please contact a Hacklahoma team member through the Hacklahoma Discord or through team@hacklahoma.org.")
+                else:
+                    return redirect(reverse_lazy("application:discord_rules", kwargs={'pk': app.id, 'discord_id': discord_id}))
             else:
-                return redirect(reverse_lazy("application:discord_rules") + f"?id={discord_id}")
-        else:
-            return redirect(reverse_lazy("status")) 
+                return redirect(reverse_lazy("application:discord_rules", kwargs={'pk': app.id}))
 
-class DiscordRulesView(mixins.LoginRequiredMixin, generic.FormView):
+        else:
+            return redirect(reverse_lazy("status"))
+
+class DiscordRulesView(mixins.LoginRequiredMixin, generic.UpdateView):
     """
     View for making sure people read the rules of the Discord server
     """
+
+    queryset = Application.objects.all()
     template_name = "application/discord_rules.html"
+    form_class = DiscordRulesForm
+    success_url = reverse_lazy("status")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        #context["active_wave"] = Wave.objects.active_wave()
+        return context
+
+    def get_object(self, queryset: QuerySet = None) -> Application:
+        """
+        Checks to make sure that the user actually owns the application requested.
+        """
+        app: Application = super().get_object()
+        if self.request.user.is_superuser:
+            return app
+        if app.user != self.request.user:
+            raise PermissionDenied("You don't have permission to view this application")
+        return app
 
 class DiscordLink(mixins.LoginRequiredMixin, generic.TemplateView):
     """
@@ -167,7 +196,6 @@ class DiscordLink(mixins.LoginRequiredMixin, generic.TemplateView):
         if app and app.agree:
             app.discord_id = discord_id
             app.checked_in = True
-
 
         if app.status == STATUS_DECLINED:
             # Do nothing, they already declined
