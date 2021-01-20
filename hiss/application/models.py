@@ -364,8 +364,7 @@ class Application(models.Model):
     )
     discord_id = models.CharField(max_length=32, null=True)
     checked_in = models.BooleanField(default=False)
-    agree_to_discord_rules = models.BooleanField("I agree to the rules shown above.", choices=AGREE, null=True)
-
+    
     # ABOUT YOU
     # First Name Character Field
     first_name = models.CharField(

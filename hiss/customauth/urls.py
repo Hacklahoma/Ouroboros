@@ -11,11 +11,6 @@ urlpatterns = [
         name="login",
     ),
     path(
-        "discord/",
-        views.DiscordAuthView.as_view(),
-        name="discord_auth",
-    ),
-    path(
         "discord/<str:id>/",
         views.DiscordAuthView.as_view(),
         name="discord_auth",

@@ -191,8 +191,7 @@ class ApplicationAdmin(admin.ModelAdmin):
         "datetime_submitted",
         "status",
         "discord_id",
-        "checked_in",
-        "agree_to_discord_rules"
+        "checked_in"
     )
     fieldsets = [
         ("Related Objects", {"fields": ["user"]}),
@@ -251,6 +250,7 @@ class ApplicationAdmin(admin.ModelAdmin):
         ),
         ("Confirmation Deadline", {"fields": ["confirmation_deadline"]}),
         ("Miscellaneous", {"fields": ["notes"]}),
+        ("Discord", {"fields":["discord_id","checked_in","agree_to_discord_rules"]}),
     ]
     list_per_page = 2000
 

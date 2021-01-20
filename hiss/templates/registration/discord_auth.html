@@ -15,7 +15,7 @@
                     </div>
                 </header>
                 
-                <form id="login-form" method="POST" action="{% url 'customauth:discord_auth' %}">
+                <form id="login-form" method="POST" action="{% url 'customauth:discord_auth' view.kwargs.discord_id %}">
                     {% csrf_token %}
                     <!-- security -->
                     <div class="form-row">
@@ -36,11 +36,7 @@
 
                         {% endfor %}
 
-                        {% if view.kwargs.discord_id %}
                         <input id="login_redirect" type="hidden" name="next" value="{% url 'application:check_id' view.kwargs.discord_id %}" />
-                        {% else %}
-                        <input id="login_redirect" type="hidden" name="next" value="{% url 'application:check_id' %}" />
-                        {% endif %}
                         <input type="submit" class="btn btn-lg btn-block btn-login" value="Log In"/>
                     </div>
                     {% csrf_token %}
