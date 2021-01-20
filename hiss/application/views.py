@@ -1,12 +1,21 @@
+"""
+Application views
+"""
+
+import os
+import requests
+
 from django import views
 from django.contrib.auth import mixins
 from django.core.exceptions import PermissionDenied
 from django.db.models import QuerySet
-from django.http import HttpRequest
+from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views import generic
 
+from user.models import User
+from team.models import Team
 from application.emails import send_confirmation_email, send_creation_email
 from application.forms import ApplicationModelForm
 from application.models import (
@@ -120,3 +129,101 @@ class DeclineApplicationView(mixins.LoginRequiredMixin, views.View):
         app.status = STATUS_DECLINED
         app.save()
         return redirect(reverse_lazy("status"))
+
+class CheckDiscordIdView(mixins.LoginRequiredMixin, views.View):
+    """
+    Checks to see if a discord id has been used already or if the current user 
+    already has a discord id linked to it. Also pings bot to ensure that the 
+    linked discord account is in the server.
+    """
+
+    def get(self, request, *_args, **kwargs):
+        if not Application.objects.filter(user_id=self.request.user.id):
+            return HttpResponse("Application is not finished.")
+
+        app: Application = Application.objects.get(user_id=self.request.user.id)
+        discord_id = kwargs.get('discord_id')
+
+        if app is not None:
+                # Check to see if the application was declined
+            if app.status == STATUS_DECLINED:
+                return HttpResponse("Application to Hacklahoma was declined. Please contact a Hacklahoma team member through the Hacklahoma Discord or through team@hacklahoma.org.")
+            # Check to see if the application returned already has a discord id
+            elif app.discord_id:
+                return HttpResponse("Application already has a Discord account linked to it. If you think this is an error please contact a Hacklahoma team member through the Hacklahoma Discord or through team@hacklahoma.org.")
+           
+            # Check to see if the discord id was provided
+            if discord_id is not None:
+                # Check to see if there is an application with the specified discord id
+                if Application.objects.filter(discord_id=discord_id):
+                    return HttpResponse("Discord account already linked. If you think this is an error please contact a Hacklahoma team member through the Hacklahoma Discord or through team@hacklahoma.org.")
+                else:
+                    # Ping the bot asking for the specified user.
+                    user = requests.get(url = f"{os.environ.get('DISCORD_BOT_URL')}/check_user/{discord_id}/")
+                    data = user.json()
+
+                    if(data['results'][0]['exists']):
+                        return HttpResponse("Discord ID Does exists")
+                    return HttpResponse("Couldnt find")
+                   # return redirect(reverse_lazy("application:link_discord", kwargs={'discord_id': discord_id}))
+        else:
+            return redirect(reverse_lazy("status"))
+
+
+class LinkDiscordView(mixins.LoginRequiredMixin, generic.TemplateView):
+    """
+    Gets the Application and then updates the discord_id, and checked_in
+    """
+
+    def post(self, request: HttpRequest, *args, **kwargs):
+        app: Application = Application.objects.get(user_id=self.request.user.id)
+        discord_id = request.GET.get("id")
+
+        if app:
+            app.discord_id = discord_id
+            app.checked_in = True
+
+        if app.status == STATUS_DECLINED:
+            # Do nothing, they already declined
+            return redirect(reverse_lazy("status"))
+        if app.user != request.user:
+            raise PermissionDenied(
+                "You don't have permission to view this application."
+            )
+        if not (app.status == STATUS_ADMITTED or app.status == STATUS_CONFIRMED):
+            raise PermissionDenied(
+                "You can't decline your spot if it hasn't been approved."
+            )
+        app.status = STATUS_DECLINED
+        app.save()
+        return redirect(reverse_lazy("status"))
+    
+class DiscordDataView(views.View):
+    queryset = Application.objects.all()
+
+    def get(self, request, *_args, **kwargs):
+        if not Application.objects.filter(discord_id=kwargs.get('discord_id')):
+            return HttpResponse("no_app")
+        else:
+            data = None
+            discord_id = kwargs.get('discord_id')
+            app: Application = Application.objects.get(discord_id=discord_id)
+            user: User = User.objects.get(id=app.user_id)
+
+            if user.team_id:
+                team = Team.objects.get(id=user.team_id)
+
+                data = {
+                    'discord_id': discord_id,
+                    'name': f"{app.first_name} {app.last_name}",
+                    'team_name': team.name
+                }
+
+            else:
+                data = {
+                    'discord_id': discord_id,
+                    'name': f"{app.first_name} {app.last_name}",
+                    'team_name': None
+                }
+            
+            return JsonResponse(data)

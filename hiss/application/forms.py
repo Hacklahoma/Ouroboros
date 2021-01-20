@@ -1,9 +1,9 @@
 from django import forms
 from django.utils.safestring import mark_safe
+from django.forms import widgets
 
 from application import models as application_models, models
 from application.models import School
-
 
 class ApplicationModelForm(forms.ModelForm):
     race_other = forms.CharField(

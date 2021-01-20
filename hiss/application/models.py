@@ -364,7 +364,7 @@ class Application(models.Model):
     )
     discord_id = models.CharField(max_length=32, null=True)
     checked_in = models.BooleanField(default=False)
-
+    
     # ABOUT YOU
     # First Name Character Field
     first_name = models.CharField(
@@ -383,7 +383,7 @@ class Application(models.Model):
         null=True, 
         verbose_name="email address", 
         help_text="Please enter your school address ending in .edu to be considered. Contact us at team@hacklahoma.org for any exceptions.",
-        validators=[RegexValidator(regex="^([A-Za-z0-9_\.-]+\@([\da-z\.-]+\.(edu|ie|edu\.in|ac\.in)|ontariotechu\.net)|shizhe\.he6\@gmail\.com)$", message="Enter a valid email address ending in .edu")]
+        validators=[RegexValidator(regex="^([A-Za-z0-9_\.-]+\@([\da-z\.-]+\.(edu|ie|edu\.in|ac\.in|unam\.mx)|ontariotechu\.net)|shizhe\.he6\@gmail\.com|arjun110503\@gmail\.com)$", message="Enter a valid email address ending in .edu")]
     )
 
     # Phone Character Field
@@ -493,7 +493,7 @@ class Application(models.Model):
         help_text="Note: US residents only and must submit a project"
     )
 
-     # Mailing Adress Adress Form
+    # Mailing Adress Adress Form
     address1 = models.CharField(
         "Address line 1",
         max_length=1024,
@@ -605,3 +605,4 @@ class Application(models.Model):
             raise exceptions.ValidationError("Please format your phone number to contain no spaces, dashes, or parenthesis.")
         if not self.num_hackathons_attended.isnumeric():
             raise exceptions.ValidationError("Please enter a number for the number of hackathons.")
+

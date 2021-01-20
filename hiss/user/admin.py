@@ -2,6 +2,7 @@ import csv
 
 from django.contrib import admin
 from django.contrib.auth.models import Group
+from django.db import transaction
 from django.db.models.query import QuerySet
 from django.http import HttpRequest, HttpResponse
 
@@ -21,6 +22,16 @@ def export_user_emails(_modeladmin, _request: HttpRequest, queryset: QuerySet):
         writer.writerow([instance.email])
 
     return response
+
+def fix_email_casing(_modeladmin, _request: HttpRequest, queryset: QuerySet) -> None:
+    """
+    Sets every selected email to be lowercase
+    """
+
+    with transaction.atomic():
+        for user in queryset:
+            user.email = user.email.lower()
+            user.save()
 
 
 class HasAppliedFilter(admin.SimpleListFilter):
@@ -61,7 +72,8 @@ class UserAdmin(admin.ModelAdmin):
     list_per_page = 2000
 
     export_user_emails.short_description = "Export Emails of Selected Users"
-    actions = [export_user_emails]
+    fix_email_casing.short_description = "Fix Selected User(s) Email Casing"
+    actions = [export_user_emails, fix_email_casing]
 
     def has_applied(self, obj: User):
         return obj.application_set.exists()
