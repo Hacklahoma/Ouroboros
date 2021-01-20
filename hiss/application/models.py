@@ -487,7 +487,7 @@ class Application(models.Model):
 
     # Shipping Address "Label"
     shipping_address = models.BooleanField(
-        "Would you like to have swag and snacks shipped directly to you?",
+        "Would you like to have swag shipped directly to you?",
         choices=AGREE,
         default=None,
         help_text="Note: US residents only and must submit a project"

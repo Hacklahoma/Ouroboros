@@ -22,6 +22,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='application',
             name='shipping_address',
-            field=models.BooleanField(choices=[(True, 'Agree'), (False, 'Disagree')], default=None, help_text='Note: US residents only and must submit a project', verbose_name='Would you like to have swag and snacks shipped directly to you?'),
+            field=models.BooleanField(choices=[(True, 'Agree'), (False, 'Disagree')], default=None, help_text='Note: US residents only and must submit a project', verbose_name='Would you like to have swag shipped directly to you?'),
         ),
     ]
