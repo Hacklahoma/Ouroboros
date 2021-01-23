@@ -180,7 +180,7 @@ class LinkDiscordView(mixins.LoginRequiredMixin, views.View):
 
     def get(self, request: HttpRequest, *args, **kwargs):
         app: Application = Application.objects.get(user_id=self.request.user.id)
-        discord_id = request.GET.get("id")
+        discord_id = kwargs.get('discord_id')
 
         if app:
             app.discord_id = discord_id
@@ -194,8 +194,8 @@ class LinkDiscordView(mixins.LoginRequiredMixin, views.View):
                 team = Team.objects.get(id=user.team_id)
 
                 r = requests.put(
-                    f"https://hacklahoma-discord-bot.herokuapp.com/check_in",
-                    params={
+                    "https://hacklahoma-discord-bot.herokuapp.com/check_in",
+                    json={
                         "discord_id": discord_id,
                         "name": f"{app.first_name} {app.last_name}",
                         "team_name": team.name
@@ -203,15 +203,16 @@ class LinkDiscordView(mixins.LoginRequiredMixin, views.View):
                 )
             else:
                 r = requests.put(
-                    f"https://hacklahoma-discord-bot.herokuapp.com/check_in",
-                    params={
+                    "https://hacklahoma-discord-bot.herokuapp.com/check_in",
+                    json={
                         "discord_id": discord_id,
                         "name": f"{app.first_name} {app.last_name}",
                         "team_name": None
                     }
                 )
 
-            return HttpResponse(r)
+            return HttpResponse("Success! You may now exit out of this window. Happy Hacking!")
+            #return HttpResponse(f"discord_id: {discord_id}, name: {app.first_name}")
 
         return redirect(reverse_lazy("status"))
     
