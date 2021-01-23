@@ -149,8 +149,8 @@ class CheckDiscordIdView(mixins.LoginRequiredMixin, views.View):
             if app.status == STATUS_DECLINED:
                 return HttpResponse("Application to Hacklahoma was declined. Please contact a Hacklahoma team member through the Hacklahoma Discord or through team@hacklahoma.org.")
             # Check to see if the application returned already has a discord id
-            elif app.discord_id:
-                return HttpResponse("Application already has a Discord account linked to it. If you think this is an error please contact a Hacklahoma team member through the Hacklahoma Discord or through team@hacklahoma.org.")
+            # elif app.discord_id and app.discord_id != 0:
+            #    return HttpResponse("Application already has a Discord account linked to it. If you think this is an error please contact a Hacklahoma team member through the Hacklahoma Discord or through team@hacklahoma.org.")
            
             # Check to see if the discord id was provided
             if discord_id is not None:
@@ -158,44 +158,61 @@ class CheckDiscordIdView(mixins.LoginRequiredMixin, views.View):
                 if Application.objects.filter(discord_id=discord_id):
                     return HttpResponse("Discord account already linked. If you think this is an error please contact a Hacklahoma team member through the Hacklahoma Discord or through team@hacklahoma.org.")
                 else:
-                    # Ping the bot asking for the specified user.
-                    user = requests.get(url = f"{os.environ.get('DISCORD_BOT_URL')}/check_user/{discord_id}/")
-                    data = user.json()
+                    try:
+                        # Ping the bot asking for the specified user
+                        r = requests.get(f"https://hacklahoma-discord-bot.herokuapp.com/check_user/{discord_id}")
 
-                    if(data['results'][0]['exists']):
-                        return HttpResponse("Discord ID Does exists")
-                    return HttpResponse("Couldnt find")
-                   # return redirect(reverse_lazy("application:link_discord", kwargs={'discord_id': discord_id}))
+                        if(r.json()['exists']):
+                            return redirect(reverse_lazy("application:link_discord", kwargs={'discord_id': discord_id}))
+                        else:
+                            return HttpRequest("Discord account not found within server. Please make sure you have already joined the Hacklahoma discord server.")
+                    except requests.ConnectionError as e:
+                        # handle the exception
+                        return HttpResponse(e)
         else:
             return redirect(reverse_lazy("status"))
 
 
-class LinkDiscordView(mixins.LoginRequiredMixin, generic.TemplateView):
+class LinkDiscordView(mixins.LoginRequiredMixin, views.View):
     """
     Gets the Application and then updates the discord_id, and checked_in
     """
 
-    def post(self, request: HttpRequest, *args, **kwargs):
+    def get(self, request: HttpRequest, *args, **kwargs):
         app: Application = Application.objects.get(user_id=self.request.user.id)
         discord_id = request.GET.get("id")
 
         if app:
             app.discord_id = discord_id
             app.checked_in = True
+            app.save()
 
-        if app.status == STATUS_DECLINED:
-            # Do nothing, they already declined
-            return redirect(reverse_lazy("status"))
-        if app.user != request.user:
-            raise PermissionDenied(
-                "You don't have permission to view this application."
-            )
-        if not (app.status == STATUS_ADMITTED or app.status == STATUS_CONFIRMED):
-            raise PermissionDenied(
-                "You can't decline your spot if it hasn't been approved."
-            )
-        app.status = STATUS_DECLINED
-        app.save()
+            user: User = User.objects.get(id=app.user_id)
+            params = None
+
+            if user.team_id:
+                team = Team.objects.get(id=user.team_id)
+
+                r = requests.put(
+                    f"https://hacklahoma-discord-bot.herokuapp.com/check_in",
+                    params={
+                        "discord_id": discord_id,
+                        "name": f"{app.first_name} {app.last_name}",
+                        "team_name": team.name
+                    }
+                )
+            else:
+                r = requests.put(
+                    f"https://hacklahoma-discord-bot.herokuapp.com/check_in",
+                    params={
+                        "discord_id": discord_id,
+                        "name": f"{app.first_name} {app.last_name}",
+                        "team_name": None
+                    }
+                )
+
+            return HttpResponse(r)
+
         return redirect(reverse_lazy("status"))
     
 class DiscordDataView(views.View):
