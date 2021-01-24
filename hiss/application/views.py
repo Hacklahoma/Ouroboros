@@ -211,7 +211,7 @@ class LinkDiscordView(mixins.LoginRequiredMixin, views.View):
                     }
                 )
 
-            return HttpResponse("Success! You may now exit out of this window. Happy Hacking!")
+            return redirect(reverse_lazy("discord_success"))
             #return HttpResponse(f"discord_id: {discord_id}, name: {app.first_name}")
 
         return redirect(reverse_lazy("status"))
