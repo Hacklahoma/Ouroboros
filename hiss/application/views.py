@@ -215,7 +215,15 @@ class LinkDiscordView(mixins.LoginRequiredMixin, views.View):
             #return HttpResponse(f"discord_id: {discord_id}, name: {app.first_name}")
 
         return redirect(reverse_lazy("status"))
+
+class DiscordSuccessView(generic.TemplateView):
+    """
+    Template for the successful discord link page
+    """
+
+    template_name = "application/discord_success.html"
     
+"""
 class DiscordDataView(views.View):
     queryset = Application.objects.all()
 
@@ -245,3 +253,4 @@ class DiscordDataView(views.View):
                 }
             
             return JsonResponse(data)
+"""
