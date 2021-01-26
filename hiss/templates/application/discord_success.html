@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block body %}
+
+<section class="discord-success">
+    <div class="container">
+        <div class="row justify-content-md-center">
+            <div class="col-sm-12 col-md-8 col-lg-6 login-box">
+                <header class="text-center">
+                    <img class="header-logo" src="{% static 'discord_logo.png' %}">
+
+                    <h3>Your Discord has been successfully linked to your Hacklahoma Application!</h3><br />
+                    <div class="col-sm-12 col-lg-12 text-center">
+                        To return to the login page <a href="{% url 'customauth:login' %}">click here!</a>
+                    </div>
+                </header>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
