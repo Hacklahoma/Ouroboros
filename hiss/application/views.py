@@ -242,16 +242,11 @@ class DiscordDataView(views.View):
 
     def get(self, request, *_args, **kwargs):
         discord_id = request.GET.get('discord_id')
-        request_user = request.GET.get('user')
-        request_pass = request.GET.get('pass')
+        request_user = request.GET.get('request_user')
+        request_pass = request.GET.get('request_pass')
 
         if (not os.environ['REG_USERNAME'] == request_user and not os.environ['REG_PASSWORD'] == request_pass):
-            data = {
-                    'discord_id': discord_id,
-                    'request_user': request_user,
-                    'request_pass': request_pass
-                }
-            return JsonResponse(data)
+            return HttpResponse('Access Denied')
 
         if (not discord_id):
             return HttpResponse('Discord id not specified.')
