@@ -246,7 +246,12 @@ class DiscordDataView(views.View):
         request_pass = request.GET.get('pass')
 
         if (not os.environ['REG_USERNAME'] == request_user and not os.environ['REG_PASSWORD'] == request_pass):
-            return HttpResponse('Access Denied.')
+            data = {
+                    'discord_id': discord_id,
+                    'request_user': request_user,
+                    'request_pass': request_pass
+                }
+            return JsonResponse(data)
 
         if (not discord_id):
             return HttpResponse('Discord id not specified.')
