@@ -132,15 +132,28 @@ def export_application_emails(_modeladmin, _request: HttpRequest, queryset: Quer
     )
     for instance in queryset:
         instance: Application = instance
-        
+        school = None
+
+        if str(instance.school) == "Other":
+            school = instance.school_other
+        else:
+            school = instance.school
+
+        study_switch = {
+            "H": "High School",
+            "T": "Tech School",
+            "U": "Undergrad University",
+            "G": "Graduate University"
+        }
+
         writer.writerow(
             [
                 instance.first_name,
                 instance.last_name,
                 instance.user.email,
                 instance.phone_number,
-                instance.school,
-                instance.level_of_study
+                school,
+                study_switch.get(instance.level_of_study)
             ]
         )
 
