@@ -143,9 +143,11 @@ class CheckDiscordIdView(mixins.LoginRequiredMixin, views.View):
 
         app: Application = Application.objects.get(user_id=self.request.user.id)
         discord_id = kwargs.get('discord_id')
+        request_user = os.environ['REG_USERNAME']
+        request_pass = os.environ['REG_PASSWORD'] 
 
         if app is not None:
-                # Check to see if the application was declined
+            # Check to see if the application was declined
             if app.status == STATUS_DECLINED:
                 return HttpResponse("Application to Hacklahoma was declined. Please contact a Hacklahoma team member through the Hacklahoma Discord or through team@hacklahoma.org.")
             # Check to see if the application returned already has a discord id
@@ -160,7 +162,13 @@ class CheckDiscordIdView(mixins.LoginRequiredMixin, views.View):
                 else:
                     try:
                         # Ping the bot asking for the specified user
-                        r = requests.get(f"https://hacklahoma-discord-bot.herokuapp.com/check_user/{discord_id}")
+                        r = requests.get(
+                            f"{os.environ['DISCORD_BOT_URL']}check_user/{discord_id}",
+                            json={
+                                "request_user": request_user,
+                                "request_pass": request_pass
+                            }
+                        )
 
                         if(r.json()['exists']):
                             return redirect(reverse_lazy("application:link_discord", kwargs={'discord_id': discord_id}))
@@ -181,6 +189,8 @@ class LinkDiscordView(mixins.LoginRequiredMixin, views.View):
     def get(self, request: HttpRequest, *args, **kwargs):
         app: Application = Application.objects.get(user_id=self.request.user.id)
         discord_id = kwargs.get('discord_id')
+        request_user = os.environ['REG_USERNAME']
+        request_pass = os.environ['REG_PASSWORD'] 
 
         if app:
             app.discord_id = discord_id
@@ -188,51 +198,63 @@ class LinkDiscordView(mixins.LoginRequiredMixin, views.View):
             app.save()
 
             user: User = User.objects.get(id=app.user_id)
-            params = None
 
             if user.team_id:
                 team = Team.objects.get(id=user.team_id)
 
-                r = requests.put(
-                    "https://hacklahoma-discord-bot.herokuapp.com/check_in",
+                requests.put(
+                    f"{os.environ['DISCORD_BOT_URL']}check_in",
                     json={
                         "discord_id": discord_id,
                         "name": f"{app.first_name} {app.last_name}",
-                        "team_name": team.name
+                        "team_name": team.name,
+                        "request_user": request_user,
+                        "request_pass": request_pass
                     }
                 )
             else:
-                r = requests.put(
-                    "https://hacklahoma-discord-bot.herokuapp.com/check_in",
+                requests.put(
+                    f"{os.environ['DISCORD_BOT_URL']}check_in",
                     json={
                         "discord_id": discord_id,
                         "name": f"{app.first_name} {app.last_name}",
-                        "team_name": None
+                        "team_name": None,
+                        "request_user": request_user,
+                        "request_pass": request_pass
                     }
                 )
 
-            return redirect(reverse_lazy("discord_success"))
+            return redirect(reverse_lazy("application:discord_success"))
             #return HttpResponse(f"discord_id: {discord_id}, name: {app.first_name}")
 
         return redirect(reverse_lazy("status"))
 
-class DiscordSuccessView(generic.TemplateView):
+class DiscordSuccessView(generic.TemplateView, mixins.LoginRequiredMixin):
     """
     Template for the successful discord link page
     """
 
     template_name = "application/discord_success.html"
     
-"""
+
 class DiscordDataView(views.View):
     queryset = Application.objects.all()
 
     def get(self, request, *_args, **kwargs):
-        if not Application.objects.filter(discord_id=kwargs.get('discord_id')):
-            return HttpResponse("no_app")
+        discord_id = request.GET.get('discord_id')
+        request_user = request.GET.get('request_user')
+        request_pass = request.GET.get('request_pass')
+
+        if (not os.environ['REG_USERNAME'] == request_user and not os.environ['REG_PASSWORD'] == request_pass):
+            return HttpResponse('Access Denied')
+
+        if (not discord_id):
+            return HttpResponse('Discord id not specified.')
+
+        if not Application.objects.filter(discord_id=discord_id):
+            return HttpResponse('no_app')
         else:
-            data = None
-            discord_id = kwargs.get('discord_id')
+            data = None 
             app: Application = Application.objects.get(discord_id=discord_id)
             user: User = User.objects.get(id=app.user_id)
 
@@ -244,7 +266,6 @@ class DiscordDataView(views.View):
                     'name': f"{app.first_name} {app.last_name}",
                     'team_name': team.name
                 }
-
             else:
                 data = {
                     'discord_id': discord_id,
@@ -253,4 +274,3 @@ class DiscordDataView(views.View):
                 }
             
             return JsonResponse(data)
-"""

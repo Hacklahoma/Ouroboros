@@ -96,7 +96,6 @@ class PlaceholderPasswordResetView(auth_views.PasswordResetView):
     success_url = reverse_lazy("customauth:password_reset_done")
     extra_email_context = {"event_name": "Hacklahoma"}
 
-
 class PlaceholderPasswordResetConfirmView(auth_views.PasswordResetConfirmView):
     """
     Uses PlaceholderSetPasswordForm instead of default SetPasswordForm.

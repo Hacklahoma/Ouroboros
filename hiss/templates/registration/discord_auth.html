@@ -35,6 +35,9 @@
                         {% endif %}
 
                         {% endfor %}
+                        <div class="forgot-pswd-wrapper">
+                            <a href="{% url 'customauth:password_reset' %}" class="forgot-pswd">Forgot Password?</a>
+                        </div>
 
                         <input id="login_redirect" type="hidden" name="next" value="{% url 'application:check_id' view.kwargs.discord_id %}" />
                         <input type="submit" class="btn btn-lg btn-block btn-login" value="Log In"/>
