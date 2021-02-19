@@ -159,6 +159,49 @@ def export_application_emails(_modeladmin, _request: HttpRequest, queryset: Quer
 
     return response
 
+def export_application_tshirts(_modeladmin, _request: HttpRequest, queryset: QuerySet):
+    """
+    Exports the data needed to ship out tshirts and other swag
+    """
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = 'attachment; filename="tshirts.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(
+        [
+            "First Name",
+            "Last Name",
+            "E-Mail",
+            "Phone Number",
+            "Address Line 1",
+            "Address Line 2",
+            "City",
+            "State",
+            "Zip / Postal code"
+        ]
+    )
+
+    for instance in queryset:
+        instance: Application = instance
+        
+        if instance.shipping_address == True:
+            writer.writerow(
+                [
+                    instance.first_name,
+                    instance.last_name,
+                    instance.user.email,
+                    instance.phone_number,
+                    instance.address1,
+                    instance.address2,
+                    instance.city,
+                    instance.state,
+                    instance.zip_code
+                ] 
+            )
+
+
+    return response
+
 
 def custom_titled_filter(title):
     class Wrapper(admin.FieldListFilter):
@@ -275,11 +318,14 @@ class ApplicationAdmin(admin.ModelAdmin):
     export_application_emails.short_description = (
         "Export Emails for Selected Applications"
     )
+    export_application_tshirts.short_description = (
+        "Export Tshirt Size and Addresses for Selected Applications"
+    )
     resend_confirmation.short_description = (
         "Resend Confirmation to Selected Applications"
     )
 
-    actions = [approve, reject, export_application_emails, resend_confirmation]
+    actions = [approve, reject, export_application_emails, resend_confirmation, export_application_tshirts]
 
     def has_add_permission(self, request):
         return True
