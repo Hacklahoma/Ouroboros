@@ -173,29 +173,33 @@ def export_application_tshirts(_modeladmin, _request: HttpRequest, queryset: Que
             "Last Name",
             "E-Mail",
             "Phone Number",
+            "Shirt Size",
             "Address Line 1",
             "Address Line 2",
             "City",
             "State",
-            "Zip / Postal code"
+            "Zip / Postal code",
+            "Country"
         ]
     )
 
     for instance in queryset:
         instance: Application = instance
-        
-        if instance.shipping_address == True:
+
+        if instance.shipping_address == True and instance.checked_in == True:
             writer.writerow(
                 [
                     instance.first_name,
                     instance.last_name,
                     instance.user.email,
                     instance.phone_number,
+                    instance.shirt_size,
                     instance.address1,
                     instance.address2,
                     instance.city,
                     instance.state,
-                    instance.zip_code
+                    instance.zip_code,
+                    "United States"
                 ] 
             )
 
