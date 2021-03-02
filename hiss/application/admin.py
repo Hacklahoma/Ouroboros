@@ -111,6 +111,59 @@ def resend_confirmation(_modeladmin, _request: HttpRequest, queryset: QuerySet) 
     for application in queryset:
         send_confirmation_email(application)
 
+def interested_in_hacklahoma_export(_modeladmin, _request: HttpRequest, queryset: QuerySet):
+    """
+    Exports the emails of selected users interested in Hacklahoma
+    """
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = 'attachment; filename="emails.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(
+        [
+            "First Name",
+            "Last Name",
+            "E-Mail",
+            "Phone Number",
+            "Current Level of Study",
+            "School",
+            "Anticipated Graduation Year",
+            "Resume"
+        ]
+    )
+    for instance in queryset:
+        instance: Application = instance
+
+        if instance.interested_in_hacklahoma == True and str(instance.school) == "University of Oklahoma":
+            school = None
+
+            if str(instance.school) == "Other":
+                school = instance.school_other
+            else:
+                school = instance.school
+
+            study_switch = {
+                "H": "High School",
+                "T": "Tech School",
+                "U": "Undergrad University",
+                "G": "Graduate University"
+            }
+
+            writer.writerow(
+                [
+                    instance.first_name,
+                    instance.last_name,
+                    instance.user.email,
+                    instance.phone_number,
+                    study_switch.get(instance.level_of_study),
+                    school,
+                    instance.graduation_year,
+                    instance.resume.path,
+                ]
+            )
+
+    return response
+
 
 def export_application_emails(_modeladmin, _request: HttpRequest, queryset: QuerySet):
     """
@@ -328,8 +381,11 @@ class ApplicationAdmin(admin.ModelAdmin):
     resend_confirmation.short_description = (
         "Resend Confirmation to Selected Applications"
     )
+    interested_in_hacklahoma_export.short_description = (
+        "Interested in Hacklahoma"
+    )
 
-    actions = [approve, reject, export_application_emails, resend_confirmation, export_application_tshirts]
+    actions = [approve, reject, export_application_emails, resend_confirmation, export_application_tshirts, interested_in_hacklahoma_export]
 
     def has_add_permission(self, request):
         return True
