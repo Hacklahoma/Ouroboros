@@ -127,8 +127,7 @@ def interested_in_hacklahoma_export(_modeladmin, _request: HttpRequest, queryset
             "Phone Number",
             "Current Level of Study",
             "School",
-            "Anticipated Graduation Year",
-            "Resume"
+            "Anticipated Graduation Year"
         ]
     )
     for instance in queryset:
@@ -157,8 +156,7 @@ def interested_in_hacklahoma_export(_modeladmin, _request: HttpRequest, queryset
                     instance.phone_number,
                     study_switch.get(instance.level_of_study),
                     school,
-                    instance.graduation_year,
-                    instance.resume.path,
+                    instance.graduation_year
                 ]
             )
 
