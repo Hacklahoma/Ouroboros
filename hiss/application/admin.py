@@ -127,7 +127,8 @@ def interested_in_hacklahoma_export(_modeladmin, _request: HttpRequest, queryset
             "Phone Number",
             "Current Level of Study",
             "School",
-            "Anticipated Graduation Year"
+            "Anticipated Graduation Year",
+            "Resume"
         ]
     )
     for instance in queryset:
@@ -257,6 +258,34 @@ def export_application_tshirts(_modeladmin, _request: HttpRequest, queryset: Que
 
     return response
 
+def export_application_prizes(_modeladmin, _request: HttpRequest, queryset: QuerySet):
+    """
+    Exports the prizes 
+    """
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = 'attachment; filename="prizes.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(
+        [
+            "First Name",
+            "Last Name",
+            "Prizes"
+        ]
+    )
+    for instance in queryset:
+        instance: Application = instance
+
+        writer.writerow(
+            [
+                instance.first_name,
+                instance.last_name,
+                instance.question3
+            ]
+        )
+
+    return response
+
 
 def custom_titled_filter(title):
     class Wrapper(admin.FieldListFilter):
@@ -382,8 +411,11 @@ class ApplicationAdmin(admin.ModelAdmin):
     interested_in_hacklahoma_export.short_description = (
         "Interested in Hacklahoma"
     )
+    export_application_prizes.short_description = (
+        "Export Application Prizes"
+    )
 
-    actions = [approve, reject, export_application_emails, resend_confirmation, export_application_tshirts, interested_in_hacklahoma_export]
+    actions = [approve, reject, export_application_emails, resend_confirmation, export_application_tshirts, interested_in_hacklahoma_export, export_application_prizes]
 
     def has_add_permission(self, request):
         return True
