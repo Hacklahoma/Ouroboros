@@ -216,42 +216,37 @@ def export_application_tshirts(_modeladmin, _request: HttpRequest, queryset: Que
     Exports the data needed to ship out tshirts and other swag
     """
     response = HttpResponse(content_type="text/csv")
-    response["Content-Disposition"] = 'attachment; filename="tshirts.csv"'
+    response["Content-Disposition"] = 'attachment; filename="deets.csv"'
+
+    
 
     writer = csv.writer(response)
     writer.writerow(
         [
             "First Name",
             "Last Name",
-            "E-Mail",
-            "Phone Number",
-            "Shirt Size",
-            "Address Line 1",
-            "Address Line 2",
-            "City",
-            "State",
-            "Zip / Postal code",
-            "Country"
+            "Gender",
+            "Major"
         ]
     )
 
+    gender = None
+
     for instance in queryset:
         instance: Application = instance
+
+        if str(instance.gender) == "Other":
+            gender = instance.gender_other
+        else:
+            gender = instance.gender
 
         if instance.shipping_address == True and instance.checked_in == True:
             writer.writerow(
                 [
                     instance.first_name,
                     instance.last_name,
-                    instance.user.email,
-                    instance.phone_number,
-                    instance.shirt_size,
-                    instance.address1,
-                    instance.address2,
-                    instance.city,
-                    instance.state,
-                    instance.zip_code,
-                    "United States"
+                    gender,
+                    instance.major
                 ] 
             )
 
