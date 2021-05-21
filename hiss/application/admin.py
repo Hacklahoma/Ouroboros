@@ -226,7 +226,8 @@ def export_application_tshirts(_modeladmin, _request: HttpRequest, queryset: Que
             "First Name",
             "Last Name",
             "Gender",
-            "Major"
+            "Major",
+            "Graduation Year"
         ]
     )
 
@@ -246,7 +247,8 @@ def export_application_tshirts(_modeladmin, _request: HttpRequest, queryset: Que
                     instance.first_name,
                     instance.last_name,
                     gender,
-                    instance.major
+                    instance.major,
+                    instance.graduation_year
                 ] 
             )
 
